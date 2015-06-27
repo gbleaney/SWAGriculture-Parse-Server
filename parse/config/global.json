@@ -1,0 +1,14 @@
+{
+  "global": {
+    "parseVersion": "1.4.2"
+  },
+  "applications": {
+    "SWAGriculture": {
+      "applicationId": "eJMnNRD684vVSgW6aTjuwt6aOegfEf1C7xMuvDln",
+      "masterKey": "9CG3dI825Kic29YREEMsMUBQegL3NzMnVNPhUev2"
+    },
+    "_default": {
+      "link": "SWAGriculture"
+    }
+  }
+}
