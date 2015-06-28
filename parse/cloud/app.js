@@ -20,7 +20,11 @@ app.get('/hello', function(req, res) {
 //   // GET http://example.parseapp.com/test?message=hello
 //   res.send(req.query.message);
 // });
-
+function getTrap(trapId) {
+    var query = new Parse.Query(Trap);
+    query.equalTo("trapId", trapId);
+    return query.first();
+}
 
 function setTrapStatusStable(trapId, sprungFlag) {
     var Trap = Parse.Object.extend("Trap");
@@ -103,7 +107,9 @@ app.post('/reset', function(req, res) {
 });
 
 app.post('/triggertest', function(req, res) {
-    push.sendPush();
+    getTrap(req.body.id).then(function(trap) {
+        push.sendPush(trap.get("name"))
+    });
     setTrapStatusUnstable(req.body.id, true).then(function () {
         recordTrapAction(req.body.id, "trigger");
         res.send(req.body);
