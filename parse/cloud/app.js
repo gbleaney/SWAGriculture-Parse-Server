@@ -5,13 +5,8 @@ var app = express();
 var push = require('cloud/push');
 var Trap = require('cloud/trap'); // include the trap functions
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
-
-<<<<<<< HEAD
-=======
-var Trap = Parse.Object.extend("Trap");
 var Phone = Parse.Object.extend("Phone");
 
->>>>>>> 989aaa82e365fa6ffb1bb15a031ca6b90ddc2716
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
 app.set('view engine', 'ejs');    // Set the template engine
@@ -126,7 +121,7 @@ app.post('/receiveSMS', function(req, res) {
     }, function (error) {
         res.status(500).send({ error: error });
     });
-    
+
 });
 
 // Attach the Express app to Cloud Code.
