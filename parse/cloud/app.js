@@ -3,6 +3,7 @@
 var express = require('express');
 var app = express();
 var push = require('cloud/push');
+var Trap = require('cloud/trap'); // include the trap functions
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -22,101 +23,30 @@ app.get('/hello', function(req, res) {
 // });
 
 
-function setTrapStatusStable(trapId, sprungFlag) {
-    var Trap = Parse.Object.extend("Trap");
-    var promise = new Parse.Promise();
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    query.first({
-        success: function (trap) {
-            if (!trap) {
-                promise.reject("No trap found");
-                return;
-            }
-            console.log("Found a trap")
-            console.log(trap);
-            trap.save({
-                sprung: sprungFlag
-            });
-            promise.resolve();
-        },
-        error: function (error) {
-            console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message);
-            promise.reject(error);
-        }
-    });
-    return promise;
-}
-
-function setTrapStatusUnstable(trapId, sprungFlag) {
-    var Trap = Parse.Object.extend("Trap");
-    var promise = new Parse.Promise();
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    query.first({
-        success: function (trap) {
-            if (!trap) {
-                promise.reject("No trap found");
-                return;
-            }
-            trap.save({
-                sprung: sprungFlag
-            }, {
-                success: promise.resolve.bind(promise),
-                error: promise.reject.bind(promise)
-            });
-            promise.resolve();
-        },
-        error: function (error) {
-            console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message);
-            promise.reject(error);
-        }
-    });
-
-    return promise;
-}
-
-function recordTrapAction (trapId, action) {
-    var TrapAction = Parse.Object.extend("TrapAction");
-    var trapAction = new TrapAction();
-    return trapAction.save({
-        trapId: trapId,
-        action: action
-    })
-}
 
 app.post('/trigger', function(req, res) {
-    setTrapStatusStable(req.body.id, true).then(function () {
-        recordTrapAction(req.body.id, "trigger");
+    Trap.recordTrapAction(req.body.id, "trigger");
+    push.sendPush();
+    Trap.setTrapStatus(req.body.id, true).then(function () {
         res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error });
     })
 });
 app.post('/reset', function(req, res) {
-    setTrapStatusStable(req.body.id, false).then(function () {
-        recordTrapAction(req.body.id, "reset");
+    Trap.recordTrapAction(req.body.id, "reset");
+    Trap.setTrapStatus(req.body.id, false).then(function () {
         res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error });
     });
 });
-
-app.post('/triggertest', function(req, res) {
-    push.sendPush();
-    setTrapStatusUnstable(req.body.id, true).then(function () {
-        recordTrapAction(req.body.id, "trigger");
-        res.send(req.body);
-    }, function (error) {
-        res.status(500).send({ error: error });
-    });
-});
-app.post('/resettest', function(req, res) {
-    setTrapStatusUnstable(req.body.id, false).then(function () {
-        recordTrapAction(req.body.id, "reset");
-        res.send(req.body);
-    }, function (error) {
-        res.status(500).send({ error: error });
+app.post('/trap', function (req, res) {
+    Trap.create(req.body).then(function () {
+        res.send("Created trap")
+    },
+    function (error) {
+        res.status(500).send("An error occurred: " + error.message)
     });
 });
 
