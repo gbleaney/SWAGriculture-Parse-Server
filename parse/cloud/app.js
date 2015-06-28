@@ -91,6 +91,49 @@ function recordTrapAction (trapId, action) {
     })
 }
 
+function registerPhone(req) {
+    console.log("Registering Phone: " + req.body.From);
+
+    var promise = new Parse.Promise();
+    var query = new Parse.Query(Phone);
+
+    query.equalTo("number", req.body.From);
+    query.first({
+        success: function (phone) {
+            if (!phone) {
+                console.log("Creating new phone");
+
+                var newPhone = new Phone();
+                newPhone.set("number", req.body.From);
+                newPhone.save(null, {
+                    success: function(newPhone) {
+                        console.log("Created new phone with number: "+newPhone.number);
+                        sendMessage(req.body.From, req.body.To, "You're now signed up!");
+                        promise.resolve();
+                    },
+                    error: function(gameScore, error) {
+                        console.log('Failed to create new phone, with error code: ' + error.message);
+                        sendMessage(req.body.From, req.body.To, "There was an error signing you up!");
+                        promise.resolve();
+                    }
+                });
+            } else {
+                console.log("Phone already exists");
+                sendMessage(req.body.From, req.body.To, "You're already signed up!");
+                promise.resolve();
+            }
+            
+        },
+        error: function (error) {
+            console.warn("Error fetching phone in /receiveSMS: " + error.code + " " + error.message);
+            promise.reject(error);
+        }
+    });
+
+    console.log("Returning promise");
+    return promise;
+}
+
 function sendMessage (to, from, message) {
     twilio.sendSms({
         to: to, 
@@ -144,40 +187,15 @@ app.post('/resettest', function(req, res) {
 });
 
 
-app.post('/receiveSMS',
-         function(req, res) {
+app.post('/receiveSMS', function(req, res) {
 
-    console.log("Received a new text: " + JSON.stringify(req.body));
+    console.log("Received a new text");
 
-    res.send('Success');
-
-    var query = new Parse.Query(Phone);
-    query.equalTo("number", req.body.To);
-    query.first({
-        success: function (phone) {
-            if (!phone) {
-                var newPhone = new Phone();
-                newPhone.set("number", req.body.From);
-                newPhone.save(null, {
-                    success: function(newPhone) {
-                        console.log("Created new phone with number: "+newPhone.number);
-                        sendMessage(req.body.From, req.body.To, "You're now signed up!");
-                    },
-                    error: function(gameScore, error) {
-                        console.log('Failed to create new phone, with error code: ' + error.message);
-                        sendMessage(req.body.From, req.body.To, "There was an error signing you up!");
-                    }
-                });
-            } else {
-                console.log("Phone already exists");
-                sendMessage(req.body.From, req.body.To, "You're already signed up!");
-            }
-        },
-        error: function (error) {
-            console.warn("Error fetching phone in /receiveSMS: " + error.code + " " + error.message);
-        }
+    registerPhone(req).then(function () {
+        res.send('Success');
+    }, function (error) {
+        res.status(500).send({ error: error });
     });
-
     
 });
 
