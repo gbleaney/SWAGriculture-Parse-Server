@@ -45,12 +45,33 @@ app.post('/reset', function(req, res) {
 });
 
 app.post('/trap', function (req, res) {
-    Trap.create(req.body).then(function () {
-        res.send("Created trap")
-    },
-    function (error) {
-        res.status(500).send("An error occurred: " + error.message);
+    Trap.find(req.body.trapId).then(function (existingTrap) {
+        var promise;
+        if (existingTrap) {
+            promise = Trap.update(existingTrap, req.body);
+        } else {
+            promise = Trap.create(req.body);
+        }
+        promise.then(
+            function () {
+                res.send("Success")
+            },
+            function (error) {
+                res.status(500).send("An error occurred: " + error.message);
+            }
+        )
     })
+});
+
+app.delete('/trap/:trapId', function (req, res) {
+    Trap.delete(req.param("trapId")).then(
+        function () {
+            res.send("Deleted trap info")
+        },
+        function (error) {
+            res.status(500).send("An error occurred: " + error.message);
+        }
+    )
 });
 
 
