@@ -3,7 +3,7 @@
 var express = require('express');
 var app = express();
 var push = require('cloud/push');
-
+var Trap = Parse.Object.extend("Trap");
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
 app.set('view engine', 'ejs');    // Set the template engine
@@ -27,7 +27,6 @@ function getTrap(trapId) {
 }
 
 function setTrapStatusStable(trapId, sprungFlag) {
-    var Trap = Parse.Object.extend("Trap");
     var promise = new Parse.Promise();
     var query = new Parse.Query(Trap);
     query.equalTo("trapId", trapId);
@@ -53,7 +52,6 @@ function setTrapStatusStable(trapId, sprungFlag) {
 }
 
 function setTrapStatusUnstable(trapId, sprungFlag) {
-    var Trap = Parse.Object.extend("Trap");
     var promise = new Parse.Promise();
     var query = new Parse.Query(Trap);
     query.equalTo("trapId", trapId);
