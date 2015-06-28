@@ -3,6 +3,7 @@
 var express = require('express');
 var app = express();
 var push = require('cloud/push');
+var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -124,6 +125,19 @@ app.post('/receiveSMS',
 
   console.log("Received a new text: " + req.body.From);
   res.send('asdf');
+
+  twilio.sendSms({
+    to: req.body.From, 
+    body: 'Hello!' 
+  }, function(err, responseData) { 
+    if (err) {
+      console.log(err);
+    } else { 
+      console.log(responseData.from); 
+      console.log(responseData.body);
+    }
+  }
+);
 });
 
 // Attach the Express app to Cloud Code.
