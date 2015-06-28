@@ -117,6 +117,12 @@ app.post('/resettest', function(req, res) {
         res.status(500).send({ error: error });
     });
 });
+app.post('/receiveSMS',
+         function(req, res) {
+
+  console.log("Received a new text: " + req.body.From);
+  res.send('asdf');
+});
 
 // Attach the Express app to Cloud Code.
 app.listen();
