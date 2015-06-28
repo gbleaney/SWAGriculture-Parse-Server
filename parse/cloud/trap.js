@@ -40,6 +40,13 @@ function getTrap(trapId) {
     return query.first();
 }
 
+function createGeopoint(longitude, latitude) {
+    return new Parse.GeoPoint({
+                longitude: (typeof longitude === "number") ? longitude : parseFloat(longitude),
+                latitude: (typeof latitude === "number") ? latitude : parseFloat(latitude)
+            })
+}
+
 module.exports = {
     setTrapStatus: setTrapStatus,
     recordTrapAction: recordTrapAction,
@@ -53,24 +60,48 @@ module.exports = {
      *      [data.name] {string} User's name for the trap. Will default to something if not provided
      */
     create: function (data) {
-        // TODO find an existing trap, if it exists, update instead
         var newTrap = new Trap();
         return newTrap.save({
             trapId: data.trapId,
-            location: new Parse.GeoPoint({
-                longitude: (typeof data.longitude === "number") ? data.longitude : parseFloat(data.longitude),
-                latitude: (typeof data.latitude === "number") ? data.latitude : parseFloat(data.latitude)
-            }),
+            location: createGeopoint(data.longitude, data.latitude),
             name: data.name,
             sprung: false // TODO: Find any trap actions for the newly created trap, set sprung status correctly
         })
     },
-    update: function () {
+    /**
+     * Updates the location and name fields of a given trap
+     * NOTE: Will NOT update any other fields
+     * @param trap
+     * @param newData
+     *      newData.longitude
+     *      newData.latitude If both provided, will set location of trap
+     *      newData.name {string}
+     */
+    update: function (trap, newData) {
+        if (newData.longitude && newData.latitude) {
+            trap.set("location", createGeopoint(newData.longitude, newData.latitude))
+        }
+        if (newData.name) {
+            trap.set(newData.name)
+        }
+        return trap.save();
     },
     /**
      * Delete the trap matching the given id
      */
     delete: function (trapId) {
-
+        var promise = new Parse.Promise();
+        getTrap(trapId).then(
+            function (trap) {
+                trap.destroy({
+                    success: promise.resolve.bind(promise),
+                    error: promise.reject.bind(promise)
+                });
+            },
+            function (error) {
+                promise.reject(error);
+            }
+        );
+        return promise;
     }
 };
