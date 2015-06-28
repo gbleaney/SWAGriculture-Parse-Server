@@ -2,6 +2,7 @@
 // These two lines are required to initialize Express in Cloud Code.
 var express = require('express');
 var app = express();
+var push = require('cloud/push');
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -102,6 +103,7 @@ app.post('/reset', function(req, res) {
 });
 
 app.post('/triggertest', function(req, res) {
+    push.sendPush();
     setTrapStatusUnstable(req.body.id, true).then(function () {
         recordTrapAction(req.body.id, "trigger");
         res.send(req.body);
