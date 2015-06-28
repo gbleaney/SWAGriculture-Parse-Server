@@ -3,12 +3,16 @@
 var express = require('express');
 var app = express();
 var push = require('cloud/push');
+var Trap = require('cloud/trap'); // include the trap functions
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 var twilioNumber = "+17059900308"
 
+<<<<<<< HEAD
+=======
 var Trap = Parse.Object.extend("Trap");
 var Phone = Parse.Object.extend("Phone");
 
+>>>>>>> 989aaa82e365fa6ffb1bb15a031ca6b90ddc2716
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
 app.set('view engine', 'ejs');    // Set the template engine
@@ -25,72 +29,6 @@ app.get('/hello', function(req, res) {
 //   // GET http://example.parseapp.com/test?message=hello
 //   res.send(req.query.message);
 // });
-function getTrap(trapId) {
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    return query.first();
-}
-
-function setTrapStatusStable(trapId, sprungFlag) {
-    var promise = new Parse.Promise();
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    query.first({
-        success: function (trap) {
-            if (!trap) {
-                promise.reject("No trap found");
-                return;
-            }
-            console.log("Found a trap")
-            console.log(trap);
-            trap.save({
-                sprung: sprungFlag
-            });
-            promise.resolve();
-        },
-        error: function (error) {
-            console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message);
-            promise.reject(error);
-        }
-    });
-    return promise;
-}
-
-function setTrapStatusUnstable(trapId, sprungFlag) {
-    var promise = new Parse.Promise();
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    query.first({
-        success: function (trap) {
-            if (!trap) {
-                promise.reject("No trap found");
-                return;
-            }
-            trap.save({
-                sprung: sprungFlag
-            }, {
-                success: promise.resolve.bind(promise),
-                error: promise.reject.bind(promise)
-            });
-            promise.resolve();
-        },
-        error: function (error) {
-            console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message);
-            promise.reject(error);
-        }
-    });
-
-    return promise;
-}
-
-function recordTrapAction (trapId, action) {
-    var TrapAction = Parse.Object.extend("TrapAction");
-    var trapAction = new TrapAction();
-    return trapAction.save({
-        trapId: trapId,
-        action: action
-    })
-}
 
 function registerPhone(req) {
     console.log("Registering Phone: " + req.body.From);
@@ -151,40 +89,32 @@ function sendMessage (to, message) {
 }
 
 app.post('/trigger', function(req, res) {
-    setTrapStatusStable(req.body.id, true).then(function () {
-        recordTrapAction(req.body.id, "trigger");
+    Trap.recordTrapAction(req.body.id, "trigger");
+    Trap.find(req.body.id).then(function(trap) {
+        push.sendPush(trap.get("name"))
+    });
+    Trap.setTrapStatus(req.body.id, true).then(function () {
         res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error });
     })
 });
 app.post('/reset', function(req, res) {
-    setTrapStatusStable(req.body.id, false).then(function () {
-        recordTrapAction(req.body.id, "reset");
+    Trap.recordTrapAction(req.body.id, "reset");
+    Trap.setTrapStatus(req.body.id, false).then(function () {
         res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error });
     });
 });
 
-app.post('/triggertest', function(req, res) {
-    getTrap(req.body.id).then(function(trap) {
-        push.sendPush(trap.get("name"))
-    });
-    setTrapStatusUnstable(req.body.id, true).then(function () {
-        recordTrapAction(req.body.id, "trigger");
-        res.send(req.body);
-    }, function (error) {
-        res.status(500).send({ error: error });
-    });
-});
-app.post('/resettest', function(req, res) {
-    setTrapStatusUnstable(req.body.id, false).then(function () {
-        recordTrapAction(req.body.id, "reset");
-        res.send(req.body);
-    }, function (error) {
-        res.status(500).send({ error: error });
-    });
+app.post('/trap', function (req, res) {
+    Trap.create(req.body).then(function () {
+        res.send("Created trap")
+    },
+    function (error) {
+        res.status(500).send("An error occurred: " + error.message);
+    })
 });
 
 
