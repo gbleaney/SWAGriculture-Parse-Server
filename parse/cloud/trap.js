@@ -15,7 +15,6 @@ function setTrapStatus(trapId, sprungFlag) {
                 success: promise.resolve.bind(promise),
                 error: promise.reject.bind(promise)
             });
-            promise.resolve();
         },
         error: function (error) {
             console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message);

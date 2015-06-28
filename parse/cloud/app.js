@@ -25,17 +25,15 @@ app.get('/hello', function(req, res) {
 
 
 app.post('/trigger', function(req, res) {
-    var notificationPromise = new Parse.Promise();
+    new Parse.Promise();
     Trap.recordTrapAction(req.body.id, "trigger");
-    Trap.find(req.body.id).then(function(trap) {
+    // note: notificationPromise completes after the promise inside the 'then' resolves, not after 'find' completes
+    var notificationPromise = Trap.find(req.body.id).then(function(trap) {
+        // return a new promise that resolves when all the notifications have been sent
         return Parse.Promise.when(
             push.sendPush(trap.get("name")),
             Phone.notifyAll(trap.get("name") + " has been triggered.")
         )
-    }).done(function () {
-        notificationPromise.resolve();
-    }).fail(function () {
-        notificationPromise.reject();
     });
     var setStatus = Trap.setTrapStatus(req.body.id, true);
 
