@@ -25,13 +25,23 @@ app.get('/hello', function(req, res) {
 
 
 app.post('/trigger', function(req, res) {
+    var notificationPromise = new Parse.Promise();
     Trap.recordTrapAction(req.body.id, "trigger");
     Trap.find(req.body.id).then(function(trap) {
-        push.sendPush(trap.get("name"))
+        return Parse.Promise.when(
+            push.sendPush(trap.get("name")),
+            Phone.notifyAll(trap.get("name") + " has been triggered.")
+        )
+    }).done(function () {
+        notificationPromise.resolve();
+    }).fail(function () {
+        notificationPromise.reject();
     });
-    Trap.setTrapStatus(req.body.id, true).then(function () {
-        res.send(req.body);
-    }, function (error) {
+    var setStatus = Trap.setTrapStatus(req.body.id, true);
+
+    Parse.Promise.when(notificationPromise, setStatus).done(function () {
+        res.send("success");
+    }).fail(function (error) {
         res.status(500).send({ error: error });
     })
 });
@@ -79,7 +89,7 @@ app.post('/receiveSMS', function(req, res) {
 
     console.log("Received a new text");
 
-    Phone.register(req).then(function () {
+    Phone.register("+15199988289").then(function () {
         res.send('Success');
     }, function (error) {
         res.status(500).send({ error: error });
