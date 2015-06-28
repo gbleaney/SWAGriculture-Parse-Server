@@ -52,7 +52,7 @@ function notifyAll(message) {
 
     query.find({
         success: function (phones) {
-            if (!phone) {
+            if (!phones) {
                 console.log("No phones registered!");
                 promise.resolve();
 
