@@ -6,6 +6,7 @@ var push = require('cloud/push');
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 
 var Trap = Parse.Object.extend("Trap");
+var Phone = Parse.Object.extend("Phone");
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -90,6 +91,21 @@ function recordTrapAction (trapId, action) {
     })
 }
 
+function sendMessage (to, from, message) {
+    twilio.sendSms({
+        to: to, 
+        from: from,
+        body: message 
+    }, function(err, responseData) { 
+        if (err) {
+            console.log(err);
+        } else { 
+            console.log(responseData.from); 
+            console.log(responseData.body);
+        }
+    });
+}
+
 app.post('/trigger', function(req, res) {
     setTrapStatusStable(req.body.id, true).then(function () {
         recordTrapAction(req.body.id, "trigger");
@@ -126,24 +142,43 @@ app.post('/resettest', function(req, res) {
         res.status(500).send({ error: error });
     });
 });
+
+
 app.post('/receiveSMS',
          function(req, res) {
 
-  console.log("Received a new text: " + req.body.From);
-  res.send('asdf');
+    console.log("Received a new text: " + JSON.stringify(req.body));
 
-  twilio.sendSms({
-    to: req.body.From, 
-    body: 'Hello!' 
-  }, function(err, responseData) { 
-    if (err) {
-      console.log(err);
-    } else { 
-      console.log(responseData.from); 
-      console.log(responseData.body);
-    }
-  }
-);
+    res.send('Success');
+
+    var query = new Parse.Query(Phone);
+    query.equalTo("number", req.body.To);
+    query.first({
+        success: function (phone) {
+            if (!phone) {
+                var newPhone = new Phone();
+                newPhone.set("number", req.body.From);
+                newPhone.save(null, {
+                    success: function(newPhone) {
+                        console.log("Created new phone with number: "+newPhone.number);
+                        sendMessage(req.body.From, req.body.To, "You're now signed up!");
+                    },
+                    error: function(gameScore, error) {
+                        console.log('Failed to create new phone, with error code: ' + error.message);
+                        sendMessage(req.body.From, req.body.To, "There was an error signing you up!");
+                    }
+                });
+            } else {
+                console.log("Phone already exists");
+                sendMessage(req.body.From, req.body.To, "You're already signed up!");
+            }
+        },
+        error: function (error) {
+            console.warn("Error fetching phone in /receiveSMS: " + error.code + " " + error.message);
+        }
+    });
+
+    
 });
 
 // Attach the Express app to Cloud Code.
