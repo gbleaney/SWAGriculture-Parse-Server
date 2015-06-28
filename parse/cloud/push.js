@@ -1,9 +1,9 @@
 module.exports = {
-  sendPush: function() {
+  sendPush: function(name) {
     Parse.Push.send({
       channels: [""],
       data: {
-        alert: "Trap went off"
+        alert: "Your trap: '" + name + "' was just triggered!"
       }
     })
   }

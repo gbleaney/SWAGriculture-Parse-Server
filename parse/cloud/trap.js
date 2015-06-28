@@ -34,9 +34,16 @@ function recordTrapAction (trapId, action) {
     })
 }
 
+function getTrap(trapId) {
+    var query = new Parse.Query(Trap);
+    query.equalTo("trapId", trapId);
+    return query.first();
+}
+
 module.exports = {
     setTrapStatus: setTrapStatus,
     recordTrapAction: recordTrapAction,
+    find: getTrap,
     /**
      * Instantiate a new trap in the database
      * @param data
