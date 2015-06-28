@@ -59,8 +59,8 @@ function notifyAll(message) {
                 
             } else {
             	for (var i = phones.length - 1; i >= 0; i--) {
-            		console.log("Messaging " + phones[i]["number"]);
-            		sendMessage(phones[i]["number"], message);
+            		console.log("Messaging " + JSON.stringify(phones[i]));
+            		sendMessage(phones[i].get("number"), message);
             	};
             	promise.resolve();
             }
