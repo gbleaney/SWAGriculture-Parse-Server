@@ -5,6 +5,8 @@ var app = express();
 var push = require('cloud/push');
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 
+var Trap = Parse.Object.extend("Trap");
+
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
 app.set('view engine', 'ejs');    // Set the template engine
@@ -21,10 +23,13 @@ app.get('/hello', function(req, res) {
 //   // GET http://example.parseapp.com/test?message=hello
 //   res.send(req.query.message);
 // });
-
+function getTrap(trapId) {
+    var query = new Parse.Query(Trap);
+    query.equalTo("trapId", trapId);
+    return query.first();
+}
 
 function setTrapStatusStable(trapId, sprungFlag) {
-    var Trap = Parse.Object.extend("Trap");
     var promise = new Parse.Promise();
     var query = new Parse.Query(Trap);
     query.equalTo("trapId", trapId);
@@ -50,7 +55,6 @@ function setTrapStatusStable(trapId, sprungFlag) {
 }
 
 function setTrapStatusUnstable(trapId, sprungFlag) {
-    var Trap = Parse.Object.extend("Trap");
     var promise = new Parse.Promise();
     var query = new Parse.Query(Trap);
     query.equalTo("trapId", trapId);
@@ -104,7 +108,9 @@ app.post('/reset', function(req, res) {
 });
 
 app.post('/triggertest', function(req, res) {
-    push.sendPush();
+    getTrap(req.body.id).then(function(trap) {
+        push.sendPush(trap.get("name"))
+    });
     setTrapStatusUnstable(req.body.id, true).then(function () {
         recordTrapAction(req.body.id, "trigger");
         res.send(req.body);
