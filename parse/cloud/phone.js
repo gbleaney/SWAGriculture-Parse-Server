@@ -52,15 +52,15 @@ function notifyAll(message) {
 
     query.find({
         success: function (phones) {
-            if (!phones.length) {
+            if (!phones || !phones.length) {
                 console.log("No phones registered!");
                 promise.resolve();
             } else {
-                for (var i = phones.length - 1; i >= 0; i--) {
-                    console.log("Messaging " + phones[i].number);
-                    sendMessage(phones[i].number, message);
-                };
-                promise.resolve();
+            	for (var i = phones.length - 1; i >= 0; i--) {
+            		console.log("Messaging " + JSON.stringify(phones[i]));
+            		sendMessage(phones[i].get("number"), message);
+            	};
+            	promise.resolve(); // TODO dschwarz: should only resolve once all texts have been sent
             }
         },
         error: function (error) {
@@ -74,6 +74,7 @@ function notifyAll(message) {
 }
 
 function sendMessage (to, message) {
+    // TODO return a promise
     twilio.sendSms({
         to: to, 
         from: twilioNumber,

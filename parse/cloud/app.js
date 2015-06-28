@@ -97,17 +97,17 @@ app.post('/receiveSMS', function(req, res) {
 
 });
 
-// app.post('/sendSMS', function(req, res) {
+app.post('/sendSMS', function(req, res) {
 
-//     console.log("Received a new text");
+    console.log("Texting everyone");
 
-//     Phone.register(req).then(function () {
-//         res.send('Success');
-//     }, function (error) {
-//         res.status(500).send({ error: error });
-//     });
+    Phone.notifyAll("Test").then(function () {
+        res.send('Success');
+    }, function (error) {
+        res.status(500).send({ error: error });
+    });
 
-// });
+});
 
 // Attach the Express app to Cloud Code.
 app.listen();
