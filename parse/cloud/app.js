@@ -4,6 +4,7 @@ var express = require('express');
 var app = express();
 var push = require('cloud/push');
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
+var twilioNumber = "+17059900308"
 
 var Trap = Parse.Object.extend("Trap");
 var Phone = Parse.Object.extend("Phone");
@@ -108,18 +109,18 @@ function registerPhone(req) {
                 newPhone.save(null, {
                     success: function(newPhone) {
                         console.log("Created new phone with number: "+newPhone.number);
-                        sendMessage(req.body.From, req.body.To, "You're now signed up!");
+                        sendMessage(req.body.From, "You're now signed up!");
                         promise.resolve();
                     },
                     error: function(gameScore, error) {
                         console.log('Failed to create new phone, with error code: ' + error.message);
-                        sendMessage(req.body.From, req.body.To, "There was an error signing you up!");
+                        sendMessage(req.body.From, "There was an error signing you up!");
                         promise.resolve();
                     }
                 });
             } else {
                 console.log("Phone already exists");
-                sendMessage(req.body.From, req.body.To, "You're already signed up!");
+                sendMessage(req.body.From, "You're already signed up!");
                 promise.resolve();
             }
             
@@ -134,10 +135,10 @@ function registerPhone(req) {
     return promise;
 }
 
-function sendMessage (to, from, message) {
+function sendMessage (to, message) {
     twilio.sendSms({
         to: to, 
-        from: from,
+        from: twilioNumber,
         body: message 
     }, function(err, responseData) { 
         if (err) {
