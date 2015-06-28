@@ -1,7 +1,7 @@
 
 // These two lines are required to initialize Express in Cloud Code.
-express = require('express');
-app = express();
+var express = require('express');
+var app = express();
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -58,10 +58,11 @@ function setTrapStatusUnstable(trapId, sprungFlag) {
                 promise.reject("No trap found");
                 return;
             }
-            console.log("Found a trap")
-            console.log(trap);
             trap.save({
                 sprung: sprungFlag
+            }, {
+                success: promise.resolve.bind(promise),
+                error: promise.reject.bind(promise)
             });
             promise.resolve();
         },
@@ -70,10 +71,22 @@ function setTrapStatusUnstable(trapId, sprungFlag) {
             promise.reject(error);
         }
     });
+
     return promise;
 }
+
+function recordTrapAction (trapId, action) {
+    var TrapAction = Parse.Object.extend("TrapAction");
+    var trapAction = new TrapAction();
+    return trapAction.save({
+        trapId: trapId,
+        action: action
+    })
+}
+
 app.post('/trigger', function(req, res) {
     setTrapStatusStable(req.body.id, true).then(function () {
+        recordTrapAction(req.body.id, "trigger");
         res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error });
@@ -81,25 +94,28 @@ app.post('/trigger', function(req, res) {
 });
 app.post('/reset', function(req, res) {
     setTrapStatusStable(req.body.id, false).then(function () {
+        recordTrapAction(req.body.id, "reset");
         res.send(req.body);
-    }, function () {
-        res.status(500).send({ error: "Something blew up" });
-    })
+    }, function (error) {
+        res.status(500).send({ error: error });
+    });
 });
 
 app.post('/triggertest', function(req, res) {
     setTrapStatusUnstable(req.body.id, true).then(function () {
+        recordTrapAction(req.body.id, "trigger");
         res.send(req.body);
-    }, function () {
-        res.status(500).send({ error: "Something blew up" });
-    })
+    }, function (error) {
+        res.status(500).send({ error: error });
+    });
 });
 app.post('/resettest', function(req, res) {
     setTrapStatusUnstable(req.body.id, false).then(function () {
+        recordTrapAction(req.body.id, "reset");
         res.send(req.body);
-    }, function () {
-        res.status(500).send({ error: "Something blew up" });
-    })
+    }, function (error) {
+        res.status(500).send({ error: error });
+    });
 });
 
 // Attach the Express app to Cloud Code.
