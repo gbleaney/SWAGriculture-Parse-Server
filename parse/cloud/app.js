@@ -5,6 +5,8 @@ var app = express();
 var push = require('cloud/push');
 var Trap = require('cloud/trap'); // include the trap functions
 var Phone = require('cloud/phone');
+var Phone = require('cloud/map');
+
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -104,6 +106,14 @@ app.post('/sendSMS', function(req, res) {
     }, function (error) {
         res.status(500).send({ error: error });
     });
+
+});
+
+app.get('/map', function(req, res) {
+
+    console.log("Getting map");
+
+    res.send(Map.getLinkForTraps(Trap.all));
 
 });
 
