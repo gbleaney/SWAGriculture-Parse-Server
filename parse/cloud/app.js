@@ -5,7 +5,7 @@ var app = express();
 var push = require('cloud/push');
 var Trap = require('cloud/trap'); // include the trap functions
 var Phone = require('cloud/phone');
-var Phone = require('cloud/map');
+var Map = require('cloud/map');
 
 
 // Global app configuration section
@@ -34,7 +34,7 @@ app.post('/trigger', function(req, res) {
         // return a new promise that resolves when all the notifications have been sent
         return Parse.Promise.when(
             push.sendPush(trap.get("name")),
-            Phone.notifyAll(trap.get("name") + " has been triggered.")
+            Phone.notifyAll(trap.get("name") + " has been triggered.", Map.getLinkForTraps([trap]))
         )
     });
     var setStatus = Trap.setTrapStatus(req.body.id, true);
@@ -127,7 +127,9 @@ app.get('/map', function(req, res) {
 
     console.log("Getting map");
 
-    res.send(Map.getLinkForTraps(Trap.all));
+    Trap.all().done(function (traps) {
+        res.send(Map.getLinkForTraps(traps));
+    });
 
 });
 

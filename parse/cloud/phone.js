@@ -45,7 +45,7 @@ function register(phoneNumber) {
     return promise;
 }
 
-function notifyAll(message) {
+function notifyAll(message, image) {
     console.log("Notifying all phones");
     var promise = new Parse.Promise();
     var query = new Parse.Query(Phone);
@@ -58,7 +58,7 @@ function notifyAll(message) {
             } else {
             	for (var i = phones.length - 1; i >= 0; i--) {
             		console.log("Messaging " + JSON.stringify(phones[i]));
-            		sendMessage(phones[i].get("number"), message);
+            		sendMessage(phones[i].get("number"), message, image);
             	};
             	promise.resolve(); // TODO dschwarz: should only resolve once all texts have been sent
             }
@@ -73,12 +73,15 @@ function notifyAll(message) {
     return promise;
 }
 
-function sendMessage (to, message) {
+function sendMessage (to, message, image) {
+
+    console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
     // TODO return a promise
     twilio.sendSms({
         to: to, 
         from: twilioNumber,
-        body: message 
+        body: message,
+        mediaUrl: image 
     }, function(err, responseData) { 
         if (err) {
             console.log(err);
