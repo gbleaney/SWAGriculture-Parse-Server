@@ -102,5 +102,19 @@ module.exports = {
             }
         );
         return promise;
+    },
+    all: function () {
+        var query = new Parse.Query(Trap);
+        return query.find();
+    },
+    trapToDictionary: function (trap) {
+        return {
+            location: {
+                longitude: trap.get("location").longitude,
+                latitude: trap.get("location").latitude
+            },
+            sprung: trap.get("sprung"),
+            name: trap.get("name")
+        }
     }
 };
