@@ -76,10 +76,12 @@ function notifyAll(message, image) {
 function sendMessage (to, message, image) {
 
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
+
     // TODO return a promise
     if(image){
         console.log("MMS");
-        twilio.sendMessage({
+        //TODO: Figure out why image isn't sending
+        twilio.sendSms({
             to: to, 
             from: twilioNumber,
             body: message,
