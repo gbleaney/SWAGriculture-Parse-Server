@@ -77,19 +77,37 @@ function sendMessage (to, message, image) {
 
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
     // TODO return a promise
-    twilio.sendSms({
-        to: to, 
-        from: twilioNumber,
-        body: message,
-        mediaUrl: image 
-    }, function(err, responseData) { 
-        if (err) {
-            console.log(err);
-        } else { 
-            console.log(responseData.from); 
-            console.log(responseData.body);
-        }
-    });
+    if(image){
+        console.log("MMS");
+        twilio.sendMessage({
+            to: to, 
+            from: twilioNumber,
+            body: message,
+            mediaUrl: image 
+        }, function(err, responseData) { 
+            if (err) {
+                console.log(err);
+            } else { 
+                console.log(responseData.from); 
+                console.log(responseData.body);
+            }
+        });
+    } else {
+        console.log("SMS");
+        twilio.sendSms({
+            to: to, 
+            from: twilioNumber,
+            body: message,
+        }, function(err, responseData) { 
+            if (err) {
+                console.log(err);
+            } else { 
+                console.log(responseData.from); 
+                console.log(responseData.body);
+            }
+        });
+    }
+    
 }
 
 module.exports = {
