@@ -44,7 +44,12 @@
                     map = new google.maps.Map(mapCanvas, mapOptions);
                     minPoint = new google.maps.LatLng(latMin, longMin);
                     maxPoint = new google.maps.LatLng(latMax, longMax);
-                    map.fitBounds(minPoint, maxPoint);
+
+                    map.fitBounds(new google.maps.LatLngBounds(minPoint, maxPoint));
+                    var listener = google.maps.event.addListener(map, "idle", function() {
+                        if (map.getZoom() > 18) map.setZoom(18);
+                        google.maps.event.removeListener(listener);
+                    });
                     markers.forEach(function (marker) {
                         marker.setMap(map);
                     })
