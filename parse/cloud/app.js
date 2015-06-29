@@ -6,6 +6,8 @@ var push = require('cloud/push');
 var Trap = require('cloud/trap'); // include the trap functions
 var Phone = require('cloud/phone');
 var Map = require('cloud/map');
+var http = require('http');
+var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 
 
 // Global app configuration section
@@ -30,26 +32,28 @@ app.get('/map', function(req, res) {
 
 app.post('/trigger', function(req, res) {
     new Parse.Promise();
-    Trap.recordTrapAction(req.body.id, "trigger");
-    // note: notificationPromise completes after the promise inside the 'then' resolves, not after 'find' completes
-    var notificationPromise = Trap.find(req.body.id).then(function(trap) {
-        // return a new promise that resolves when all the notifications have been sent
+    // note: completes after the promise inside the 'then' resolves, not after 'find' completes
+    Trap.find(req.body.id).then(function(trap) {
+        // return a new promise that resolves when all the notifications have been sent, and the trap has been updated
         return Parse.Promise.when(
             push.sendPush(trap.get("name")),
-            Phone.notifyAll(trap.get("name") + " has been triggered.", Map.getLinkForTraps([trap]))
+            Phone.notifyAll(trap.get("name") + " has been triggered.", Map.getLinkForTraps([trap])),
+            Trap.setTrapStatus(trap, true),
+            Trap.recordTrapAction(trap, "trigger")
         )
-    });
-    var setStatus = Trap.setTrapStatus(req.body.id, true);
-
-    Parse.Promise.when(notificationPromise, setStatus).done(function () {
+    }).done(function () {
         res.send({success: true});
     }).fail(function (error) {
         res.status(500).send({ error: error });
     })
 });
 app.post('/reset', function(req, res) {
-    Trap.recordTrapAction(req.body.id, "reset");
-    Trap.setTrapStatus(req.body.id, false).then(function () {
+    Trap.find(req.body.id).then(function(trap) {
+        return Parse.Promise.when(
+            Trap.recordTrapAction(trap, "reset"),
+            Trap.setTrapStatus(trap, false)
+        );
+    }).then(function () {
         res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error });
@@ -62,6 +66,58 @@ app.get('/trap/:id', function (req, res) {
         res.status(500).send("An error occurred: " + error.message);
     })
 });
+
+// TWILIO DEBUG CODE
+function twilioRequest(options, callback) {
+    options.url = twilio.getBaseUrl() + options.url + '.json';
+    options.headers = {'Accept': 'application/json', 'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36","version":"HTTP/1.1"}; // Work with response data
+    console.log("Body length: " + JSON.stringify(options.body).length);
+
+    return Parse.Cloud.httpRequest({
+        method: options.method,
+        url: options.url,
+        //url: "farmerdan.parseapp.com/test2",
+        headers: options.headers,
+        body: options.body
+    });
+};
+app.post('/test2', function (req, res) {
+    console.log("TEST 2 ***********")
+    console.log(req.body)
+    res.send(req.body);
+})
+app.get('/test', function (req, res) {
+    var logging = [];
+    var message = {
+        url: "/Accounts/AC7d19ea7635feb869b7e9d604dbe0b387/SMS/Messages",
+        method: "POST",
+        "body": {
+            "From": "+17059900308",
+            "To": "+15199988289",
+            "MediaUrl": "http://3.bp.blogspot.com/-f0NsmUHz2kM/T8GUGoydNpI/AAAAAAAAAfg/KnEkgnFPzpc/s1600/smiley.png"
+        }
+    }
+
+    twilioRequest(message).done(function (result) {
+        res.send(result.data)
+    }).fail(function () {
+        res.status(500).send(arguments)
+    })
+
+})
+
+function recurLog(object, name, logArray) {
+    if (typeof object === "object") {
+        logArray.push("Properties of " + name)
+        logArray.push(Object.getOwnPropertyNames(object));
+        for (var key in object) {
+            recurLog(object[key], key, logArray)
+        }
+    } else {
+        logArray.push(name + ": " + object)
+    }
+}
+// END TWILIO
 
 app.get('/traps', function (req, res) {
     Trap.all().done(function (traps) {

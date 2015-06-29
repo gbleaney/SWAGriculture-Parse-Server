@@ -33,6 +33,7 @@ function getLinkForTraps(traps) {
     	unsprungMarkerString += "|" + unsprungTraps[i].get("location").latitude + "," + unsprungTraps[i].get("location").longitude;
     };
 
+    // TODO ask graham if this works with two duplicate url params
     url += (sprungTraps.length==0 ? "" :  "&markers=" + encodeURIComponent(sprungMarkerString)) + (unsprungTraps.length == 0 ? "" : "&markers=" + encodeURIComponent(unsprungMarkerString));
 
     console.log("URL: " + url);

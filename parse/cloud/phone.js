@@ -58,7 +58,8 @@ function notifyAll(message, image) {
             } else {
             	for (var i = phones.length - 1; i >= 0; i--) {
             		console.log("Messaging " + JSON.stringify(phones[i]));
-            		sendMessage(phones[i].get("number"), message, image);
+                    // TODO dschwarz uncomment
+            		//sendMessage(phones[i].get("number"), message, image);
             	};
             	promise.resolve(); // TODO dschwarz: should only resolve once all texts have been sent
             }
