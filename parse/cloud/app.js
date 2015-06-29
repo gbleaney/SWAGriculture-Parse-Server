@@ -38,7 +38,7 @@ app.post('/trigger', function(req, res) {
     var setStatus = Trap.setTrapStatus(req.body.id, true);
 
     Parse.Promise.when(notificationPromise, setStatus).done(function () {
-        res.send("success");
+        res.send({success: true});
     }).fail(function (error) {
         res.status(500).send({ error: error });
     })
@@ -51,7 +51,21 @@ app.post('/reset', function(req, res) {
         res.status(500).send({ error: error });
     });
 });
+app.get('/trap/:id', function (req, res) {
+    Trap.find(req.param("id")).done(function (trap) {
+        res.send(Trap.trapToDictionary(trap))
+    }).fail(function (error) {
+        res.status(500).send("An error occurred: " + error.message);
+    })
+});
 
+app.get('/traps', function (req, res) {
+    Trap.all().done(function (traps) {
+        res.send(traps.map(Trap.trapToDictionary))
+    }).fail(function (error) {
+        res.status(500).send("An error occurred: " + error.message);
+    })
+});
 app.post('/trap', function (req, res) {
     Trap.find(req.body.trapId).then(function (existingTrap) {
         var promise;
@@ -62,7 +76,7 @@ app.post('/trap', function (req, res) {
         }
         promise.then(
             function () {
-                res.send("Success")
+                res.send({success: true})
             },
             function (error) {
                 res.status(500).send("An error occurred: " + error.message);
@@ -88,7 +102,7 @@ app.post('/receiveSMS', function(req, res) {
     console.log("Received a new text");
 
     Phone.register("+15199988289").then(function () {
-        res.send('Success');
+        res.send({success:true});
     }, function (error) {
         res.status(500).send({ error: error });
     });
@@ -100,7 +114,7 @@ app.post('/sendSMS', function(req, res) {
     console.log("Texting everyone");
 
     Phone.notifyAll("Test").then(function () {
-        res.send('Success');
+        res.send({success:true});
     }, function (error) {
         res.status(500).send({ error: error });
     });
