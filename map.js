@@ -1,4 +1,4 @@
-
+var Parse = require('./parse')
 var Map = Parse.Object.extend("Map");
 
 function getLinkForTraps(traps) {

@@ -1,31 +1,50 @@
-var Trap = Parse.Object.extend("Trap");
-function setTrapStatus(trap, sprungFlag) {
-    return trap.save({
-        sprung: sprungFlag
-    });
+var Parse = require('./parse')
+var Trap = Parse.Object.extend("Trap")
+function setTrapStatus(trapId, sprungFlag) {
+  var promise = new Parse.Promise()
+  var query = new Parse.Query(Trap)
+  query.equalTo("trapId", trapId)
+  query.first({
+      success: function (trap) {
+          if (!trap) {
+              promise.reject("No trap found")
+              return
+          }
+          trap.save({
+              sprung: sprungFlag
+          }, {
+              success: promise.resolve.bind(promise),
+              error: promise.reject.bind(promise)
+          })
+      },
+      error: function (error) {
+          console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message)
+          promise.reject(error)
+      }
+  })
+  return promise
 }
 
-function recordTrapAction (trap, action) {
-    var TrapAction = Parse.Object.extend("TrapAction");
-    var trapAction = new TrapAction();
+function recordTrapAction (trapId, action) {
+    var TrapAction = Parse.Object.extend("TrapAction")
+    var trapAction = new TrapAction()
     return trapAction.save({
-        trapId: trap.get("trapId"),
-        location: trap.get("location"), // store on trap action, in case trap is moved later
+        trapId: trapId,
         action: action
     })
 }
 
 function getTrap(trapId) {
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    return query.first();
+    var query = new Parse.Query(Trap)
+    query.equalTo("trapId", trapId)
+    return query.first()
 }
 
 function createGeopoint(longitude, latitude) {
-    return new Parse.GeoPoint({
-                longitude: (typeof longitude === "number") ? longitude : parseFloat(longitude),
-                latitude: (typeof latitude === "number") ? latitude : parseFloat(latitude)
-            })
+  return new Parse.GeoPoint({
+              longitude: (typeof longitude === "number") ? longitude : parseFloat(longitude),
+              latitude: (typeof latitude === "number") ? latitude : parseFloat(latitude)
+          })
 }
 
 module.exports = {
@@ -41,7 +60,7 @@ module.exports = {
      *      [data.name] {string} User's name for the trap. Will default to something if not provided
      */
     create: function (data) {
-        var newTrap = new Trap();
+        var newTrap = new Trap()
         return newTrap.save({
             trapId: data.trapId,
             location: createGeopoint(data.longitude, data.latitude),
@@ -63,31 +82,31 @@ module.exports = {
             trap.set("location", createGeopoint(newData.longitude, newData.latitude))
         }
         if (newData.name) {
-            trap.set("name", newData.name)
+            trap.set(newData.name)
         }
-        return trap.save();
+        return trap.save()
     },
     /**
      * Delete the trap matching the given id
      */
     delete: function (trapId) {
-        var promise = new Parse.Promise();
+        var promise = new Parse.Promise()
         getTrap(trapId).then(
             function (trap) {
                 trap.destroy({
                     success: promise.resolve.bind(promise),
                     error: promise.reject.bind(promise)
-                });
+                })
             },
             function (error) {
-                promise.reject(error);
+                promise.reject(error)
             }
-        );
-        return promise;
+        )
+        return promise
     },
     all: function () {
-        var query = new Parse.Query(Trap);
-        return query.find();
+        var query = new Parse.Query(Trap)
+        return query.find()
     },
     trapToDictionary: function (trap) {
         return {
@@ -99,4 +118,4 @@ module.exports = {
             name: trap.get("name")
         }
     }
-};
+}

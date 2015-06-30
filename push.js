@@ -1,3 +1,4 @@
+var Parse = require('./parse')
 module.exports = {
   sendPush: function(name) {
     return Parse.Push.send({

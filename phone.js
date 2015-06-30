@@ -1,3 +1,4 @@
+var Parse = require('./parse')
 var Phone = Parse.Object.extend("Phone");
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 var twilioNumber = "+17059900308";
@@ -33,7 +34,7 @@ function register(phoneNumber) {
                 sendMessage(phoneNumber, "You're already signed up!");
                 promise.resolve();
             }
-            
+
         },
         error: function (error) {
             console.warn("Error fetching phone in /receiveSMS: " + error.code + " " + error.message);
@@ -83,34 +84,34 @@ function sendMessage (to, message, image) {
         console.log("MMS");
         //TODO: Figure out why image isn't sending
         twilio.sendSms({
-            to: to, 
+            to: to,
             from: twilioNumber,
             body: message,
-            mediaUrl: image 
-        }, function(err, responseData) { 
+            mediaUrl: image
+        }, function(err, responseData) {
             if (err) {
                 console.log(err);
-            } else { 
-                console.log(responseData.from); 
+            } else {
+                console.log(responseData.from);
                 console.log(responseData.body);
             }
         });
     } else {
         console.log("SMS");
         twilio.sendSms({
-            to: to, 
+            to: to,
             from: twilioNumber,
             body: message,
-        }, function(err, responseData) { 
+        }, function(err, responseData) {
             if (err) {
                 console.log(err);
-            } else { 
-                console.log(responseData.from); 
+            } else {
+                console.log(responseData.from);
                 console.log(responseData.body);
             }
         });
     }
-    
+
 }
 
 module.exports = {
