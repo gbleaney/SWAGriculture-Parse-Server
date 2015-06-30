@@ -1,0 +1,25 @@
+{
+  "name": "SWAGriculture-Parse-Server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gbleaney/SWAGriculture-Parse-Server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gbleaney/SWAGriculture-Parse-Server/issues"
+  },
+  "homepage": "https://github.com/gbleaney/SWAGriculture-Parse-Server",
+  "dependencies": {
+    "body-parser": "^1.13.1",
+    "express": "^4.13.0",
+    "parse": "^1.4.2",
+    "twilio": "^2.2.1"
+  }
+}
