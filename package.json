@@ -1,5 +1,5 @@
 {
-  "name": "SWAGriculture-Parse-Server",
+  "name": "swagriculture-parse-server",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
