@@ -9,12 +9,18 @@ var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
 
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+app.use(bodyParser.json());   // Middleware for reading request body
 
 
 // Global app configuration section
 app.set('views', './views')  // Specify the folder to find templates
 app.set('view engine', 'ejs')    // Set the template engine
-app.use(bodyParser.json())    // Middleware for reading request body
+// configure the app to use bodyParser()
+
 
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
@@ -32,6 +38,8 @@ app.get('/map', function(req, res) {
 
 
 app.post('/trigger', function(req, res) {
+    console.log("Trap ID: " + req.body.id)
+    console.log("Body: " + JSON.stringify(req.body))
     // note: completes after the promise inside the 'then' resolves, not after 'find' completes
     Trap.find(req.body.id).then(function(trap) {
         // return a new promise that resolves when all the notifications have been sent, and the trap has been updated
@@ -42,7 +50,7 @@ app.post('/trigger', function(req, res) {
             Trap.recordTrapAction(trap, "trigger")
         )
     }).done(function () {
-        res.send({success: true})
+        res.send({success: true});
     }).fail(function (error) {
         res.status(500).send({ error: error })
     })
@@ -54,7 +62,7 @@ app.post('/reset', function(req, res) {
             Trap.setTrapStatus(trap, false)
         );
     }).then(function () {
-        res.send(req.body);
+        res.send(req.body)
     }, function (error) {
         res.status(500).send({ error: error })
     })
@@ -76,7 +84,7 @@ app.get('/traps', function (req, res) {
 })
 app.post('/trap', function (req, res) {
     Trap.find(req.body.trapId).then(function (existingTrap) {
-        var promise;
+        var promise
         if (existingTrap) {
             promise = Trap.update(existingTrap, req.body)
         } else {

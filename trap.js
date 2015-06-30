@@ -17,9 +17,9 @@ function recordTrapAction (trap, action) {
 }
 
 function getTrap(trapId) {
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    return query.first();
+    var query = new Parse.Query(Trap)
+    query.equalTo("trapId", trapId)
+    return query.first()
 }
 
 function createGeopoint(longitude, latitude) {
