@@ -125,7 +125,7 @@ app.post('/sendSMS', function(req, res) {
 
 });
 
-app.get('/map', function(req, res) {
+app.get('/staticMap', function(req, res) {
 
     console.log("Getting map");
 
