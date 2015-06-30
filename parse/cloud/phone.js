@@ -56,11 +56,15 @@ function notifyAll(message, image) {
                 console.log("No phones registered!");
                 promise.resolve();
             } else {
+                var messagePromises = [];
             	for (var i = phones.length - 1; i >= 0; i--) {
             		console.log("Messaging " + JSON.stringify(phones[i]));
-            		sendMessage(phones[i].get("number"), message, image);
+            		messagePromises.push(sendMessage(phones[i].get("number"), message, image));
             	};
-            	promise.resolve(); // TODO dschwarz: should only resolve once all texts have been sent
+            	Parse.Promise.when(messagePromises).done(function() {
+                    promise.resolve(); 
+                    console.log("Promises Finished")
+                });
             }
         },
         error: function (error) {
@@ -74,25 +78,19 @@ function notifyAll(message, image) {
 }
 
 function sendMessage (to, message, image) {
-
+    var promise = new Parse.Promise();
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
 
-    // TODO return a promise
     if(image){
         console.log("MMS");
-        //TODO: Figure out why image isn't sending
-        twilio.sendSms({
-            to: to, 
-            from: twilioNumber,
+        twilio.sendMessage({
             body: message,
-            mediaUrl: image 
-        }, function(err, responseData) { 
-            if (err) {
-                console.log(err);
-            } else { 
-                console.log(responseData.from); 
-                console.log(responseData.body);
-            }
+            to: to,
+            from: twilioNumber,
+            mediaUrl: image
+        }, function(err, message) {
+            console.log("MMS Sent");
+            promise.resolve();
         });
     } else {
         console.log("SMS");
@@ -101,15 +99,11 @@ function sendMessage (to, message, image) {
             from: twilioNumber,
             body: message,
         }, function(err, responseData) { 
-            if (err) {
-                console.log(err);
-            } else { 
-                console.log(responseData.from); 
-                console.log(responseData.body);
-            }
+            console.log("SMS Sent");
+            promise.resolve();
         });
     }
-    
+    return promise;
 }
 
 module.exports = {
@@ -123,3 +117,27 @@ module.exports = {
     delete: function (trapId) {
     }
 };
+
+function mydump(arr,level) {
+    var dumped_text = "";
+    if(!level) level = 0;
+
+    var level_padding = "";
+    for(var j=0;j<level+1;j++) level_padding += "    ";
+
+    if(typeof(arr) == 'object') {  
+        for(var item in arr) {
+            var value = arr[item];
+
+            if(typeof(value) == 'object') { 
+                dumped_text += level_padding + "'" + item + "' ...\n";
+                dumped_text += mydump(value,level+1);
+            } else {
+                dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+            }
+        }
+    } else { 
+        dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+    }
+    return dumped_text;
+}

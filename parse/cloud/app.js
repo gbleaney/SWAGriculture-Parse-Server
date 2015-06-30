@@ -29,7 +29,11 @@ app.get('/map', function(req, res) {
 
 
 app.post('/trigger', function(req, res) {
+    console.log("Triggering Trap ID: " + req.body.id);
+
     new Parse.Promise();
+
+
     Trap.recordTrapAction(req.body.id, "trigger");
     // note: notificationPromise completes after the promise inside the 'then' resolves, not after 'find' completes
     var notificationPromise = Trap.find(req.body.id).then(function(trap) {
@@ -125,7 +129,7 @@ app.post('/sendSMS', function(req, res) {
 
 });
 
-app.get('/map', function(req, res) {
+app.get('/staticMap', function(req, res) {
 
     console.log("Getting map");
 
