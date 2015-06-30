@@ -1,34 +1,16 @@
 var Trap = Parse.Object.extend("Trap");
-function setTrapStatus(trapId, sprungFlag) {
-    var promise = new Parse.Promise();
-    var query = new Parse.Query(Trap);
-    query.equalTo("trapId", trapId);
-    query.first({
-        success: function (trap) {
-            if (!trap) {
-                promise.reject("No trap found");
-                return;
-            }
-            trap.save({
-                sprung: sprungFlag
-            }, {
-                success: promise.resolve.bind(promise),
-                error: promise.reject.bind(promise)
-            });
-        },
-        error: function (error) {
-            console.warn("Error fetching trap in /trigger: " + error.code + " " + error.message);
-            promise.reject(error);
-        }
+function setTrapStatus(trap, sprungFlag) {
+    return trap.save({
+        sprung: sprungFlag
     });
-    return promise;
 }
 
-function recordTrapAction (trapId, action) {
+function recordTrapAction (trap, action) {
     var TrapAction = Parse.Object.extend("TrapAction");
     var trapAction = new TrapAction();
     return trapAction.save({
-        trapId: trapId,
+        trapId: trap.get("trapId"),
+        location: trap.get("location"), // store on trap action, in case trap is moved later
         action: action
     })
 }
@@ -81,7 +63,7 @@ module.exports = {
             trap.set("location", createGeopoint(newData.longitude, newData.latitude))
         }
         if (newData.name) {
-            trap.set(newData.name)
+            trap.set("name", newData.name)
         }
         return trap.save();
     },
