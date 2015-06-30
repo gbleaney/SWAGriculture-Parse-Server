@@ -32,28 +32,29 @@ app.get('/map', function(req, res) {
 
 
 app.post('/trigger', function(req, res) {
-    new Parse.Promise()
-    Trap.recordTrapAction(req.body.id, "trigger")
-    // note: notificationPromise completes after the promise inside the 'then' resolves, not after 'find' completes
-    var notificationPromise = Trap.find(req.body.id).then(function(trap) {
-        // return a new promise that resolves when all the notifications have been sent
+    // note: completes after the promise inside the 'then' resolves, not after 'find' completes
+    Trap.find(req.body.id).then(function(trap) {
+        // return a new promise that resolves when all the notifications have been sent, and the trap has been updated
         return Parse.Promise.when(
             push.sendPush(trap.get("name")),
-            Phone.notifyAll(trap.get("name") + " has been triggered.", Map.getLinkForTraps([trap]))
+            Phone.notifyAll(trap.get("name") + " has been triggered.", Map.getLinkForTraps([trap])),
+            Trap.setTrapStatus(trap, true),
+            Trap.recordTrapAction(trap, "trigger")
         )
-    })
-    var setStatus = Trap.setTrapStatus(req.body.id, true)
-
-    Parse.Promise.when(notificationPromise, setStatus).done(function () {
+    }).done(function () {
         res.send({success: true})
     }).fail(function (error) {
         res.status(500).send({ error: error })
     })
 })
 app.post('/reset', function(req, res) {
-    Trap.recordTrapAction(req.body.id, "reset")
-    Trap.setTrapStatus(req.body.id, false).then(function () {
-        res.send(req.body)
+    Trap.find(req.body.id).then(function(trap) {
+        return Parse.Promise.when(
+            Trap.recordTrapAction(trap, "reset"),
+            Trap.setTrapStatus(trap, false)
+        );
+    }).then(function () {
+        res.send(req.body);
     }, function (error) {
         res.status(500).send({ error: error })
     })
@@ -75,7 +76,7 @@ app.get('/traps', function (req, res) {
 })
 app.post('/trap', function (req, res) {
     Trap.find(req.body.trapId).then(function (existingTrap) {
-        var promise
+        var promise;
         if (existingTrap) {
             promise = Trap.update(existingTrap, req.body)
         } else {
@@ -128,7 +129,7 @@ app.post('/sendSMS', function(req, res) {
 
 })
 
-app.get('/map', function(req, res) {
+app.get('/staticMap', function(req, res) {
 
     console.log("Getting map")
 
