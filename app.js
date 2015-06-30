@@ -115,7 +115,7 @@ app.post('/receiveSMS', function(req, res) {
 
     console.log("Received a new text")
 
-    Phone.register(req.from).then(function () {
+    Phone.register(req.body.From).then(function () {
         res.status(200);
     }, function (error) {
         res.status(500).send({ error: error })
