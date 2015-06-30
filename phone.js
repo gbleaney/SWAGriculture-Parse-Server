@@ -1,3 +1,4 @@
+var Parse = require('./parse')
 var Phone = Parse.Object.extend("Phone");
 var twilio = require('twilio')('AC7d19ea7635feb869b7e9d604dbe0b387', '9d92647c98001316d5dd653c34bb618e');
 var twilioNumber = "+17059900308";
@@ -33,7 +34,7 @@ function register(phoneNumber) {
                 sendMessage(phoneNumber, "You're already signed up!");
                 promise.resolve();
             }
-            
+
         },
         error: function (error) {
             console.warn("Error fetching phone in /receiveSMS: " + error.code + " " + error.message);
@@ -56,15 +57,11 @@ function notifyAll(message, image) {
                 console.log("No phones registered!");
                 promise.resolve();
             } else {
-                var messagePromises = [];
             	for (var i = phones.length - 1; i >= 0; i--) {
             		console.log("Messaging " + JSON.stringify(phones[i]));
-            		messagePromises.push(sendMessage(phones[i].get("number"), message, image));
+            		sendMessage(phones[i].get("number"), message, image);
             	};
-            	Parse.Promise.when(messagePromises).done(function() {
-                    promise.resolve(); 
-                    console.log("Promises Finished")
-                });
+            	promise.resolve(); // TODO dschwarz: should only resolve once all texts have been sent
             }
         },
         error: function (error) {
@@ -78,32 +75,42 @@ function notifyAll(message, image) {
 }
 
 function sendMessage (to, message, image) {
-    var promise = new Parse.Promise();
+
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
 
+    // TODO return a promise
     if(image){
         console.log("MMS");
-        twilio.sendMessage({
-            body: message,
+        //TODO: Figure out why image isn't sending
+        twilio.sendSms({
             to: to,
             from: twilioNumber,
+            body: message,
             mediaUrl: image
-        }, function(err, message) {
-            console.log("MMS Sent");
-            promise.resolve();
+        }, function(err, responseData) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(responseData.from);
+                console.log(responseData.body);
+            }
         });
     } else {
         console.log("SMS");
         twilio.sendSms({
-            to: to, 
+            to: to,
             from: twilioNumber,
             body: message,
-        }, function(err, responseData) { 
-            console.log("SMS Sent");
-            promise.resolve();
+        }, function(err, responseData) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(responseData.from);
+                console.log(responseData.body);
+            }
         });
     }
-    return promise;
+
 }
 
 module.exports = {
@@ -117,27 +124,3 @@ module.exports = {
     delete: function (trapId) {
     }
 };
-
-function mydump(arr,level) {
-    var dumped_text = "";
-    if(!level) level = 0;
-
-    var level_padding = "";
-    for(var j=0;j<level+1;j++) level_padding += "    ";
-
-    if(typeof(arr) == 'object') {  
-        for(var item in arr) {
-            var value = arr[item];
-
-            if(typeof(value) == 'object') { 
-                dumped_text += level_padding + "'" + item + "' ...\n";
-                dumped_text += mydump(value,level+1);
-            } else {
-                dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-            }
-        }
-    } else { 
-        dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-    }
-    return dumped_text;
-}
