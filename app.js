@@ -1,4 +1,4 @@
-
+console.log("Initializing Server");
 // These two lines are required to initialize Express in Cloud Code.
 var express = require('express')
 var bodyParser = require('body-parser')
@@ -139,4 +139,5 @@ app.get('/map', function(req, res) {
 })
 
 // Attach the Express app to Cloud Code.
-app.listen('8000')
+app.listen('8000');
+console.log("App listening on 8000");
