@@ -9,12 +9,18 @@ var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
 
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+app.use(bodyParser.json());   // Middleware for reading request body
 
 
 // Global app configuration section
 app.set('views', './views')  // Specify the folder to find templates
 app.set('view engine', 'ejs')    // Set the template engine
-app.use(bodyParser.json())    // Middleware for reading request body
+// configure the app to use bodyParser()
+
 
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
@@ -35,6 +41,8 @@ app.post('/trigger', function(req, res) {
     new Parse.Promise()
     Trap.recordTrapAction(req.body.id, "trigger")
     // note: notificationPromise completes after the promise inside the 'then' resolves, not after 'find' completes
+    console.log("Trap ID: " + req.body.id)
+    console.log("Body: " + JSON.stringify(req.body))
     var notificationPromise = Trap.find(req.body.id).then(function(trap) {
         // return a new promise that resolves when all the notifications have been sent
         return Parse.Promise.when(
