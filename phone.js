@@ -57,11 +57,15 @@ function notifyAll(message, image) {
                 console.log("No phones registered!");
                 promise.resolve();
             } else {
-            	for (var i = phones.length - 1; i >= 0; i--) {
-            		console.log("Messaging " + JSON.stringify(phones[i]));
-            		sendMessage(phones[i].get("number"), message, image);
-            	};
-            	promise.resolve(); // TODO dschwarz: should only resolve once all texts have been sent
+                var messagePromises = [];
+                for (var i = phones.length - 1; i >= 0; i--) {
+                    console.log("Messaging " + JSON.stringify(phones[i]));
+                    messagePromises.push(sendMessage(phones[i].get("number"), message, image));
+                };
+                Parse.Promise.when(messagePromises).done(function() {
+                    promise.resolve(); 
+                    console.log("Promises Finished")
+                });
             }
         },
         error: function (error) {
@@ -75,42 +79,32 @@ function notifyAll(message, image) {
 }
 
 function sendMessage (to, message, image) {
-
+    var promise = new Parse.Promise();
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
 
-    // TODO return a promise
     if(image){
         console.log("MMS");
-        //TODO: Figure out why image isn't sending
-        twilio.sendSms({
+        twilio.sendMessage({
+            body: message,
             to: to,
             from: twilioNumber,
-            body: message,
             mediaUrl: image
-        }, function(err, responseData) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log(responseData.from);
-                console.log(responseData.body);
-            }
+        }, function(err, message) {
+            console.log("MMS Sent");
+            promise.resolve();
         });
     } else {
         console.log("SMS");
         twilio.sendSms({
-            to: to,
+            to: to, 
             from: twilioNumber,
             body: message,
-        }, function(err, responseData) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log(responseData.from);
-                console.log(responseData.body);
-            }
+        }, function(err, responseData) { 
+            console.log("SMS Sent");
+            promise.resolve();
         });
     }
-
+    return promise;
 }
 
 module.exports = {
