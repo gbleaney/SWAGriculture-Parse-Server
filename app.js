@@ -116,8 +116,8 @@ app.post('/receiveSMS', function(req, res) {
 
     console.log("Received a new text")
 
-    Phone.register("+15199988289").then(function () {
-        res.send({success:true})
+    Phone.register(req.body.From).then(function () {
+        res.status(200).end();
     }, function (error) {
         res.status(500).send({ error: error })
     })
@@ -129,7 +129,7 @@ app.post('/sendSMS', function(req, res) {
     console.log("Texting everyone")
 
     Phone.notifyAll("Test").then(function () {
-        res.send({success:true})
+        res.send({success:true}).end();
     }, function (error) {
         res.status(500).send({ error: error })
     })

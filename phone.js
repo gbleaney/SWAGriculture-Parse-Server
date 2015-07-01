@@ -82,28 +82,17 @@ function sendMessage (to, message, image) {
     var promise = new Parse.Promise();
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
 
-    if(image){
-        console.log("MMS");
-        twilio.sendMessage({
-            body: message,
-            to: to,
-            from: twilioNumber,
-            mediaUrl: image
-        }, function(err, message) {
-            console.log("MMS Sent");
-            promise.resolve();
-        });
-    } else {
-        console.log("SMS");
-        twilio.sendSms({
-            to: to, 
-            from: twilioNumber,
-            body: message,
-        }, function(err, responseData) { 
-            console.log("SMS Sent");
-            promise.resolve();
-        });
-    }
+    twilio.sendMessage({
+        body: message,
+        to: to,
+        from: twilioNumber,
+        mediaUrl: image
+    }, function(err, message) {
+        console.log("MMS Sent. Error: " + err + " Message: "+message);
+
+        promise.resolve();
+    });
+
     return promise;
 }
 
