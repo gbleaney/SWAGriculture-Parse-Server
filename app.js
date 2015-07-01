@@ -2,6 +2,7 @@ console.log("Initializing Server");
 // These two lines are required to initialize Express in Cloud Code.
 var express = require('express')
 var bodyParser = require('body-parser')
+var multer = require('multer')
 var app = express()
 var push = require('./push')
 var Trap = require('./trap') // include the trap functions
@@ -9,12 +10,12 @@ var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
 
+// Middleware for reading request body
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
-app.use(bodyParser.json());   // Middleware for reading request body
-
+app.use(bodyParser.json());   
+app.use(multer());
 
 // Global app configuration section
 app.set('views', './views')  // Specify the folder to find templates
@@ -111,12 +112,9 @@ app.delete('/trap/:trapId', function (req, res) {
 })
 
 
-app.post('/receiveSMS', function(req, res) {
+app.post('/receiveSMS', function (req, res) {
 
-    console.log("Received a new text")
-
-    res.status(200).send(req.body);
-    return;
+    console.log("Received a new text from: " + req.body)
 
     Phone.register(req.body.From).then(function () {
         res.status(200).end();
