@@ -12,8 +12,7 @@ $(document).ready(function initialize () {
                 zoom: 16,
                 mapTypeId: google.maps.MapTypeId.HYBRID
             },
-            map, minPoint, maxPoint;
-        buildTrapSection(traps);
+            map, minPoint, maxPoint; 
         traps.forEach(function (trap) {
             // default to 0 if undefined
             var long = trap.location.longitude;
@@ -44,40 +43,3 @@ $(document).ready(function initialize () {
         })
     })
 } );
-
-function buildTrapSection(traps) {
-    var trapsContainer = $("#traps-accordion");
-    traps.forEach(function (trap) {
-        trapsContainer.append(buildTrap(trap));
-    })
-}
-
-function buildTrap(trap) {
-    var trapPanel = $("<div>")
-        .addClass("panel panel-default trap-container");
-
-    var header = $("<div>")
-        .addClass("panel-heading")
-        .attr("role", "tab")
-        .attr("id", "header-" + trap.trapId)
-    var headerTitle = $("<h4>")
-        .addClass("panel-title trap-name")
-        .appendTo(header);
-
-    headerTitle.append('<div class="arrow-right"></div>');
-
-    $('<a role="button" data-toggle="collapse" data-parent="#traps-accordion" aria-expanded="true"></a>')
-        .attr("aria-controls", "control-"+trap.trapId)
-        .attr("href", "header-"+trap.trapId)
-        .text(trap.name)
-        .appendTo(headerTitle);
-
-    var description = $('<div class="trap-description">');
-    description.append('<p>Last reset: 03/03/2015 22:15</p>');
-    description.append('<p>Average activation: 14 hours</p>');
-    description.append('<p>4 activations this month </p>');
-
-    trapPanel.append(header);
-    trapPanel.append(description);
-    return trapPanel;
-};

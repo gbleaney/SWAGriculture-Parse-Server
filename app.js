@@ -10,6 +10,8 @@ var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
 
+app.use(express.static(__dirname + '/public'));
+
 // Middleware for reading request body
 app.use(bodyParser.urlencoded({
     extended: true

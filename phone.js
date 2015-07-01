@@ -20,20 +20,16 @@ function register(phoneNumber) {
                 newPhone.save(null, {
                     success: function(newPhoneObject) {
                         console.log("Created new phone: " + JSON.stringify(newPhoneObject));
-                        sendMessage(phoneNumber, "You're now signed up!");
-                        promise.resolve();
+                        sendMessage(phoneNumber, "You're now signed up!").then(promise.resolve);
                     },
                     error: function(newPHone, error) {
                         console.log('Failed to create new phone, with error code: ' + error.message);
-                        sendMessage(phoneNumber, "There was an error signing you up!");
-                        promise.resolve();
+                        sendMessage(phoneNumber, "There was an error signing you up!").then(promise.resolve)
                     }
                 });
             } else {
                 console.log("Phone already exists");
-                sendMessage(phoneNumber, "You're already signed up!");
-                promise.resolve();
-            }
+                sendMessage(phoneNumber, "You're already signed up!").then(promise.resolve)            }
 
         },
         error: function (error) {
@@ -82,16 +78,29 @@ function sendMessage (to, message, image) {
     var promise = new Parse.Promise();
     console.log("Sending: "+ message + ", To: " + to + ", Image: " + image);
 
-    twilio.sendMessage({
-        body: message,
-        to: to,
-        from: twilioNumber,
-        mediaUrl: image
-    }, function(err, message) {
-        console.log("MMS Sent. Error: " + err + " Message: "+message);
+    if(image) {
+        twilio.sendMessage({
+            body: message,
+            to: to,
+            from: twilioNumber,
+            mediaUrl: image
+        }, function(err, message) {
+            console.log("MMS Sent. Error: " + JSON.stringify(err) + " Message: " + JSON.stringify(message));
 
-        promise.resolve();
-    });
+            promise.resolve();
+        });
+    } else {
+        twilio.sendMessage({
+            body: message,
+            to: to,
+            from: twilioNumber,
+        }, function(err, message) {
+            console.log("SMS Sent. Error: " + JSON.stringify(err) + " Message: " + JSON.stringify(message));
+
+            promise.resolve();
+        });
+    }
+    
 
     return promise;
 }
