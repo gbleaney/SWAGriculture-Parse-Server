@@ -45,6 +45,8 @@ app.post('/trigger', function(req, res) {
     Trap.find(req.body.id).then(function(trap) {
         // return a new promise that resolves when all the notifications have been sent, and the trap has been updated
         return Parse.Promise.when(
+            Trap.recordTrapAction(trap, "trigger"),
+            Trap.setTrapStatus(trap, true),
             push.sendPush(trap.get("name")),
             Phone.notifyAll(trap.get("name") + " has been triggered.", Map.getLinkForTraps([trap]))
         )
