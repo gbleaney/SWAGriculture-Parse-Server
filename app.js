@@ -18,7 +18,7 @@ app.use(bodyParser.json());   // Middleware for reading request body
 
 
 // Global app configuration section
-app.set('views', './views')  // Specify the folder to find templates
+app.set('views', __dirname + '/views'); // Specify the folder to find templates
 app.set('view engine', 'ejs')    // Set the template engine
 // configure the app to use bodyParser()
 

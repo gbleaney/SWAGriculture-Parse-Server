@@ -12,7 +12,7 @@ $(document).ready(function initialize () {
                 zoom: 16,
                 mapTypeId: google.maps.MapTypeId.HYBRID
             },
-            map, minPoint, maxPoint; 
+            map, minPoint, maxPoint;
         traps.forEach(function (trap) {
             // default to 0 if undefined
             var long = trap.location.longitude;
