@@ -9,6 +9,7 @@ var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
 
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
