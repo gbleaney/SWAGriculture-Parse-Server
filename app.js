@@ -16,7 +16,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use(bodyParser.json());   
+app.use(bodyParser.json());
 app.use(multer());
 
 // Global app configuration section
@@ -151,5 +151,5 @@ app.get('/staticMap', function(req, res) {
 })
 
 // Attach the Express app to Cloud Code.
-app.listen('8000');
+app.listen('80');
 console.log("App listening on 8000");
