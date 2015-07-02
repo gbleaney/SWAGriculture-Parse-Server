@@ -80,25 +80,27 @@ body {
 	height:100%;
 }
 
-.trap-container:hover {
+a.trap-container {
 	text-decoration:none;	
 }
 
-.trap-name.active{
+.active .trap-name {
 	background-color:#5e96ba;
 }
 
-.trap-name{
+.trap-name {
 	padding-top:10px;
 	padding-bottom:10px;
 	padding-left:30px;
 	padding-right:30px;
-	background-color:#427799;	
+	background-color:#427799;
+	color: #eee;
+	font-size: 20px;
 	position:relative;
 	height:50px;
 }
 
-.trap-name:hover{
+.trap-name:hover {
 	background-color:#5e96ba;
 }
 
@@ -119,7 +121,15 @@ body {
 	color:#8dc981;
 }
 
+.active .arrow-right {
+	visibility: visible;
+}
+.active .trap-description {
+	display: block;
+}
+
 .arrow-right {
+	visibility: hidden;
 	position:absolute;
 	right:-25px;
 	top:0;
@@ -137,6 +147,7 @@ body {
 	}
 }
 .trap-description {
+	display: none;
 	padding-top:10px;
 	padding-bottom:10px;
 	padding-left:60px;

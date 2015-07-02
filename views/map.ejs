@@ -9,6 +9,7 @@
         <title>Trap Map</title>
         <script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
         <script src="https://maps.googleapis.com/maps/api/js"></script>
+        <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
         <script src="scripts/renderMap.js"></script>
     </head>
     <body>
@@ -24,23 +25,8 @@
             <div class="row">
                 <div class="col-sm-6 left">
                     <h3 class="heading">Your Traps:</h3>
-                    <div id="traps-accordion">
-                    <% for (var i=0; i<traps.length; i++) {%>
-                        <a href="#" class="trap-container">
-                            <div class="trap-name <%= i==0 ? '' : 'active' %>">
-                                <div class="arrow-right"></div>
-                                <p><%= traps[i].name %>
-                                    <span class=" pull-right glyphicon glyphicon-option-vertical"></span>
-                                    <span class="pull-right large red glyphicon glyphicon-record"></span>
-                                </p>
-
-                            </div>
-                            <div class="trap-description">
-                                <p>Last reset: 03/03/2015 22:15</p>
-                                <p><%= Math.floor(Math.random()*8) %> activations this month </p>
-                            </div>
-                        </a>
-                    <% } %>
+                    <!-- Rendered with knockout.js after traps are fetched -->
+                    <div id="traps-accordion" data-bind="template: {name: 'trap-template', foreach: traps}">
                     </div>
                 </div>
                 <div class="col-sm-6 map">
@@ -49,4 +35,22 @@
             </div>
         </div>
     </body>
+
+    <script id="trap-template" type="text/html">
+        <a href="#" class="trap-container" data-bind="click: select, attr: {id: containerId}">
+            <div class="trap-name">
+                <div class="arrow-right"></div>
+                <p>
+                    <span data-bind="text: name"></span>
+                    <span class=" pull-right glyphicon glyphicon-option-vertical"></span>
+                    <span class="pull-right large glyphicon glyphicon-record" data-bind="css: iconColor"></span>
+                </p>
+
+            </div>
+            <div class="trap-description">
+                <p>Last reset: 03/03/2015 22:15</p>
+                <p><span data-bind="activations"></span>activations this month</p>
+            </div>
+        </a>
+    </script>
 </html>

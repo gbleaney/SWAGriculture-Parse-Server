@@ -30,9 +30,7 @@ app.set('view engine', 'ejs')    // Set the template engine
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
 app.get('/map', function(req, res) {
-    Trap.all().done(function (traps) {
-        res.render('map', { traps: traps })
-    })
+    res.render('map')
 })
 
 // // Example reading from the request query string of an HTTP get request.

@@ -97,7 +97,8 @@ module.exports = {
                 latitude: trap.get("location").latitude
             },
             sprung: trap.get("sprung"),
-            name: trap.get("name")
+            name: trap.get("name"),
+            trapId: trap.get('trapId')
         }
     }
 }

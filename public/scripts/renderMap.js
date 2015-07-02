@@ -12,6 +12,22 @@ $(document).ready(function initialize () {
                 zoom: 16,
                 mapTypeId: google.maps.MapTypeId.HYBRID
             },
+            accordion = $("#traps-accordion"),
+            trapsViewModel = {
+                traps: traps.map(function (trap) {
+                    return {
+                        trapId: trap.trapId,
+                        containerId: 'trap-' + trap.trapId,
+                        name: trap.name,
+                        iconColor: trap.sprung ? 'red' : 'green',
+                        select: function (data, event) {
+                            var element = $(event.currentTarget)
+                            $(".active", accordion).removeClass('active');
+                            element.addClass("active");
+                        }
+                    }
+                })
+            },
             map, minPoint, maxPoint;
         traps.forEach(function (trap) {
             // default to 0 if undefined
@@ -28,6 +44,10 @@ $(document).ready(function initialize () {
               title: trap.name
             }));
         });
+        // render the side panel traps with knockoutjs
+        ko.applyBindings(trapsViewModel, accordion[0])
+
+
         mapOptions.center = new google.maps.LatLng(totalLatitude/traps.length, totalLongitude/traps.length);
         map = new google.maps.Map(mapCanvas, mapOptions);
         minPoint = new google.maps.LatLng(latMin, longMin);
