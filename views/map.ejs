@@ -11,6 +11,16 @@
         <script src="https://maps.googleapis.com/maps/api/js"></script>
         <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
         <script src="scripts/renderMap.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script>
+            var socket = io()
+            socket.on('triggered', function(trap) {
+                console.log("Trap triggered!")
+            })
+            socket.on('reset', function(trap) {
+
+            })
+        </script>
     </head>
     <body>
         <div class="container-fluid nav-heading">
