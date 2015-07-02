@@ -10,6 +10,8 @@ var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
 
+var port = process.argv[2] || '80'
+
 app.use(express.static(__dirname + '/public'));
 
 // Middleware for reading request body
@@ -151,5 +153,5 @@ app.get('/staticMap', function(req, res) {
 })
 
 // Attach the Express app to Cloud Code.
-app.listen('80');
-console.log("App listening on 8000");
+app.listen(port)
+console.log("App listening on " + port)
