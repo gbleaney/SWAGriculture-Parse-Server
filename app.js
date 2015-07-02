@@ -17,7 +17,7 @@ var port = process.argv[2] || '80'
 server.listen(port)
 
 // Attach the Express app to Cloud Code.
-console.log("App listening on 80")
+console.log("App listening on " + port)
 
 app.use(express.static(__dirname + '/public'))
 
