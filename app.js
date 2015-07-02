@@ -9,20 +9,28 @@ var Trap = require('./trap') // include the trap functions
 var Phone = require('./phone')
 var Map = require('./map')
 var Parse = require('./parse')
+var server = require('http').Server(app)
+var io = require('socket.io')(server)
 
 var port = process.argv[2] || '80'
 
-app.use(express.static(__dirname + '/public'));
+server.listen(port)
+
+// Attach the Express app to Cloud Code.
+console.log("App listening on 80")
+
+app.use(express.static(__dirname + '/public'))
 
 // Middleware for reading request body
 app.use(bodyParser.urlencoded({
     extended: true
-}));
-app.use(bodyParser.json());
-app.use(multer());
+}))
+
+app.use(bodyParser.json())
+app.use(multer())
 
 // Global app configuration section
-app.set('views', __dirname + '/views'); // Specify the folder to find templates
+app.set('views', __dirname + '/views') // Specify the folder to find templates
 app.set('view engine', 'ejs')    // Set the template engine
 // configure the app to use bodyParser()
 
@@ -48,6 +56,7 @@ app.post('/trigger', function(req, res) {
     // note: completes after the promise inside the 'then' resolves, not after 'find' completes
     Trap.find(req.body.id).then(function(trap) {
         // return a new promise that resolves when all the notifications have been sent, and the trap has been updated
+        io.emit('triggered', trap)
         return Parse.Promise.when(
             Trap.recordTrapAction(trap, "trigger"),
             Trap.setTrapStatus(trap, true),
@@ -62,6 +71,7 @@ app.post('/trigger', function(req, res) {
 })
 app.post('/reset', function(req, res) {
     Trap.find(req.body.id).then(function(trap) {
+        io.emit('reset', trap)
         return Parse.Promise.when(
             Trap.recordTrapAction(trap, "reset"),
             Trap.setTrapStatus(trap, false)
@@ -151,7 +161,3 @@ app.get('/staticMap', function(req, res) {
     })
 
 })
-
-// Attach the Express app to Cloud Code.
-app.listen(port)
-console.log("App listening on " + port)
