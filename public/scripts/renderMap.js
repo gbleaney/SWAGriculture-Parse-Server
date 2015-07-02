@@ -24,6 +24,10 @@ $(document).ready(function initialize () {
                             var element = $(event.currentTarget)
                             $(".active", accordion).removeClass('active');
                             element.addClass("active");
+                            map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
+                            if (map.getZoom() < 16) {
+                                map.setZoom(16)
+                            }
                         }
                     }
                 })
