@@ -1,4 +1,6 @@
 var map;
+var MIN_ZOOM_LEVEL = 20
+
 $(document).ready(function initialize () {
     var mapCanvas = document.getElementById('map-canvas');
     $.get("/traps").done(function(traps) {
@@ -26,8 +28,8 @@ $(document).ready(function initialize () {
                             $(".active", accordion).removeClass('active');
                             element.addClass("active");
                             map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
-                            if (map.getZoom() < 16) {
-                                map.setZoom(16)
+                            if (map.getZoom() < MIN_ZOOM_LEVEL) {
+                                map.setZoom(MIN_ZOOM_LEVEL)
                             }
                         }
                     }
