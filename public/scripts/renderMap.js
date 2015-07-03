@@ -1,3 +1,4 @@
+var map;
 $(document).ready(function initialize () {
     var mapCanvas = document.getElementById('map-canvas');
     $.get("/traps").done(function(traps) {
@@ -32,7 +33,7 @@ $(document).ready(function initialize () {
                     }
                 })
             },
-            map, minPoint, maxPoint;
+            minPoint, maxPoint;
         traps.forEach(function (trap) {
             // default to 0 if undefined
             var long = trap.location.longitude;
