@@ -9,6 +9,11 @@ var map,
         INFO: "info" // blue
     }
 
+/**
+ * Adds a notification to the bottom of the list of notifications
+ * @param message {string} Text to display
+ * @param [options] {object} containing additional information
+ */
 function addNotification (message, options) {
     options = options || {}
     var newNoty = {
@@ -26,6 +31,8 @@ function addNotification (message, options) {
     }
     notifications.push(newNoty)
 }
+// An example call
+//addNotification("Hello world!", {duration: 2500, type: notificationTypes.SUCCESS })
 
 $(document).ready(function initialize () {
     var mapCanvas = document.getElementById('map-canvas');
@@ -78,7 +85,6 @@ $(document).ready(function initialize () {
               title: trap.name
             }));
         });
-        addNotification("Hi", {duration: 1500, type: notificationTypes.ERROR })
         // render the side panel traps with knockoutjs
         ko.applyBindings(trapsViewModel, accordion[0])
         ko.applyBindings({
@@ -95,7 +101,6 @@ $(document).ready(function initialize () {
             }
         }, notificationContainer[0])
 
-        addNotification("Hulio", {duration: 5500, type: notificationTypes.SUCCESS })
 
 
         mapOptions.center = new google.maps.LatLng(totalLatitude/traps.length, totalLongitude/traps.length);
