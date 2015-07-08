@@ -82,11 +82,15 @@ $(document).ready(function initialize () {
         ko.applyBindings(trapsViewModel, accordion[0])
         ko.applyBindings({
             notifications: notifications,
-            animateIn: function (elements) {
-                $(elements).fadeIn()
+            animateIn: function (elem) {
+                if (elem.nodeType === 1) {
+                    $(elem).fadeIn()
+                }
             },
-            animateOut: function (elements) {
-                $(elements).slideUp()
+            animateOut: function (elem) {
+                if (elem.nodeType === 1) {
+                    $(elem).fadeTo(300, 0).slideUp()
+                }
             }
         }, notificationContainer[0])
 
