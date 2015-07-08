@@ -16,6 +16,10 @@
             var socket = io()
             socket.on('triggered', function(trap) {
                 $('#trap-' + trap.trapId).find('.trap-status').removeClass('green').addClass('red')
+                map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
+                if (map.getZoom() < MIN_ZOOM_LEVEL) {
+                    map.setZoom(MIN_ZOOM_LEVEL)
+                }
                 alert("Your trap " + trap.name + " was triggered!")
             })
             socket.on('reset', function(trap) {

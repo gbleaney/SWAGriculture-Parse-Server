@@ -1,4 +1,5 @@
-var MIN_ZOOM_LEVEL = 20,
+var map,
+    MIN_ZOOM_LEVEL = 20,
     // ko is the global name for the knockout library
     notifications = ko.observableArray(), // a knockout observable array will update the html on push/remove
     notificationTypes = {
@@ -61,7 +62,7 @@ $(document).ready(function initialize () {
                     }
                 })
             },
-            map, minPoint, maxPoint;
+            minPoint, maxPoint;
         traps.forEach(function (trap) {
             // default to 0 if undefined
             var long = trap.location.longitude;
