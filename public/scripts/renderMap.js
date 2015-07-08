@@ -1,4 +1,30 @@
-var MIN_ZOOM_LEVEL = 20
+var MIN_ZOOM_LEVEL = 20,
+    // ko is the global name for the knockout library
+    notifications = ko.observableArray(), // a knockout observable array will update the html on push/remove
+    notificationTypes = {
+        ERROR: "error", // red
+        WARN: "warn", // yellow
+        SUCCESS: "success", //green
+        INFO: "info" // blue
+    }
+
+function addNotification (message, options) {
+    options = options || {}
+    var newNoty = {
+        message: message,
+        type: options.type || "",
+        remove: function () {
+            // called by on click and/or by the timeout
+            notifications.remove(newNoty)
+        }
+    }
+    if (typeof options.duration == "number") {
+        setTimeout(function () {
+            newNoty.remove() // calling remove twice is fine, just does nothing
+        }, options.duration)
+    }
+    notifications.push(newNoty)
+}
 
 $(document).ready(function initialize () {
     var mapCanvas = document.getElementById('map-canvas');
@@ -15,6 +41,7 @@ $(document).ready(function initialize () {
                 mapTypeId: google.maps.MapTypeId.HYBRID
             },
             accordion = $("#traps-accordion"),
+            notificationContainer = $(".notifications-container"),
             trapsViewModel = {
                 traps: traps.map(function (trap) {
                     return {
@@ -50,8 +77,20 @@ $(document).ready(function initialize () {
               title: trap.name
             }));
         });
+        addNotification("Hi", {duration: 1500, type: notificationTypes.ERROR })
         // render the side panel traps with knockoutjs
         ko.applyBindings(trapsViewModel, accordion[0])
+        ko.applyBindings({
+            notifications: notifications,
+            animateIn: function (elements) {
+                $(elements).fadeIn()
+            },
+            animateOut: function (elements) {
+                $(elements).slideUp()
+            }
+        }, notificationContainer[0])
+
+        addNotification("Hulio", {duration: 5500, type: notificationTypes.SUCCESS })
 
 
         mapOptions.center = new google.maps.LatLng(totalLatitude/traps.length, totalLongitude/traps.length);

@@ -65,6 +65,10 @@ body {
 	width:100%;
 }
 
+.main-body-container {
+	position: relative;
+}
+
 /* TRAPS */
 
 .trap-container {
@@ -159,4 +163,39 @@ a.trap-container {
 .trap-description p {
 	font-size:16px;	
 	font-weight:200;
+}
+
+/* Notifications */
+.notification {
+	width: 200px;
+	background-color: rgba(139, 140, 143, 0.9);
+	color: #eee;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 5px;
+	/*border: solid rgb(20, 50, 170); I don't like the look of this particular border */
+}
+
+.notification.info {
+	background-color: rgba(35, 66, 196, 0.9);
+}
+.notification.success {
+	background-color: rgba(23, 145, 30, 0.9);
+}
+.notification.warn {
+	background-color: rgba(196, 167, 32, 0.9);
+}
+.notification.error {
+	background-color: rgba(237, 50, 50, 0.9);
+}
+
+.notifications-container {
+    position:  absolute;
+    right: 0;
+    top: 0;
+    z-index: 20;
+}
+
+.notification-body {
+	padding: 10px;
 }

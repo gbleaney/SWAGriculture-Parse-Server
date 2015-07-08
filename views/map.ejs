@@ -33,17 +33,27 @@
             </div>
         </div>
 
-        <div class="container-fluid">
+        <div class="container-fluid main-body-container">
             <div class="row">
                 <div class="col-sm-6 left">
                     <h3 class="heading">Your Traps:</h3>
                     <!-- Rendered with knockout.js after traps are fetched -->
-                    <div id="traps-accordion" data-bind="template: {name: 'trap-template', foreach: traps}">
+                    <div id="traps-accordion" data-bind="template: {
+                        name: 'trap-template',
+                        foreach: traps
+                    }">
                     </div>
                 </div>
                 <div class="col-sm-6 map">
                     <div id="map-canvas"></div>
                 </div>
+            </div>
+            <div class="notifications-container" data-bind="template: {
+                name: 'notification-template',
+                foreach: notifications,
+                afterAdd: animateIn,
+                beforeRemove: animateOut
+            }">
             </div>
         </div>
     </body>
@@ -63,5 +73,13 @@
                 <p><span data-bind="activations"></span>activations this month</p>
             </div>
         </a>
+    </script>
+
+    <script id="notification-template" type="text/html">
+        <div class="notification" data-bind="css: type">
+            <span class="pull-right glyphicon glyphicon-remove" data-bind="click: remove"></span>
+            <div class="notification-body" data-bind="text: message">
+            </div>
+        </div>
     </script>
 </html>
