@@ -64,7 +64,7 @@ app.post('/trigger', function(req, res) {
     }).done(function () {
         res.send({success: true})
     }).fail(function (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error, success: false })
     })
 })
 app.post('/reset', function(req, res) {
@@ -75,9 +75,9 @@ app.post('/reset', function(req, res) {
             Trap.setTrapStatus(trap, false)
         );
     }).then(function () {
-        res.send(req.body)
+        res.send({success: true})
     }, function (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error, success: false })
     })
 })
 app.get('/trap/:id', function (req, res) {
