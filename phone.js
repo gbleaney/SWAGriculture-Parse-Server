@@ -42,6 +42,43 @@ function register(phoneNumber) {
     return promise;
 }
 
+function unregister(phoneNumber) {
+    console.log("Unregistering Phone: " + phoneNumber);
+
+    var promise = new Parse.Promise();
+    var query = new Parse.Query(Phone);
+
+    query.equalTo("number", phoneNumber);
+    query.first({
+        success: function (phone) {
+            if (!phone) {
+                console.log("Phone not found");
+                sendMessage(phoneNumber, "Looks like you've already been removed!").then(promise.resolve);
+            } else {
+                console.log("Phone found");
+                phone.destroy({
+                    success: function(obj) {
+                        console.log("Deleted phone");
+                        sendMessage(phoneNumber, "You will nolonger receive messages.").then(promise.resolve);
+                    },
+                    error: function(obj, error) {
+                        console.log('Failed to delete phone, with error code: ' + error.message);
+                        sendMessage(phoneNumber, "There was an error removing you from our list. Try again later.").reject(error)
+                    }
+                });     
+            }
+
+        },
+        error: function (error) {
+            console.warn("Error fetching phone in /receiveSMS: " + error.code + " " + error.message);
+            promise.reject(error);
+        }
+    });
+
+    console.log("Returning promise");
+    return promise;
+}
+
 function notifyAll(message, image) {
     console.log("Notifying all phones");
     var promise = new Parse.Promise();
@@ -107,6 +144,7 @@ function sendMessage (to, message, image) {
 
 module.exports = {
     register: register,
+    unregister: unregister,
     notifyAll: notifyAll,
 
     create: function (data) {
