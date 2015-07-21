@@ -20,7 +20,7 @@ function register(phoneNumber) {
                 newPhone.save(null, {
                     success: function(newPhoneObject) {
                         console.log("Created new phone: " + JSON.stringify(newPhoneObject));
-                        sendMessage(phoneNumber, "You're now signed up!").then(promise.resolve);
+                        sendMessage(phoneNumber, "You're now signed up! Reply 'DONE' to stop receiving messages from this number.").then(promise.resolve);
                     },
                     error: function(newPHone, error) {
                         console.log('Failed to create new phone, with error code: ' + error.message);

@@ -131,7 +131,7 @@ app.post('/receiveSMS', function (req, res) {
 
     console.log("Received a new text from: " + req.body)
 
-    if(req.body.Body == "STOP") {
+    if(req.body.Body == "DONE") {
         console.log("Removing " + req.body.From + " from phones list")
         Phone.unregister(req.body.From).then(function () {
             res.status(200).end();
