@@ -26,6 +26,10 @@
                 $('#trap-' + trap.trapId).find('.trap-status').removeClass('red').addClass('green')
                 addNotification("Your trap " + trap.name + " was reset!", {duration: 10000, type: notificationTypes.INFO})
             })
+            socket.on('new', function(trap) {
+                trapsViewModel.traps.push(buildTrap(trap))
+                map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
+            })
         </script>
     </head>
     <body>

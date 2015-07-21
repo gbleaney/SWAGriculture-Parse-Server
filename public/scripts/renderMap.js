@@ -33,6 +33,25 @@ function addNotification (message, options) {
 }
 // An example call
 //addNotification("Hello world!", {duration: 2500, type: notificationTypes.SUCCESS })
+function buildTrap(trap) {
+        return {
+            trapId: trap.trapId,
+            containerId: 'trap-' + trap.trapId,
+            name: trap.name,
+            iconColor: trap.sprung ? 'red' : 'green',
+            select: function (data, event) {
+                var element = $(event.currentTarget)
+                $(".active", accordion).removeClass('active');
+                element.addClass("active");
+                map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
+                if (map.getZoom() < MIN_ZOOM_LEVEL) {
+                    map.setZoom(MIN_ZOOM_LEVEL)
+                }
+            }
+        }
+    }
+var trapsViewModel = {
+}
 
 $(document).ready(function initialize () {
     var mapCanvas = document.getElementById('map-canvas');
@@ -50,25 +69,6 @@ $(document).ready(function initialize () {
             },
             accordion = $("#traps-accordion"),
             notificationContainer = $(".notifications-container"),
-            trapsViewModel = {
-                traps: traps.map(function (trap) {
-                    return {
-                        trapId: trap.trapId,
-                        containerId: 'trap-' + trap.trapId,
-                        name: trap.name,
-                        iconColor: trap.sprung ? 'red' : 'green',
-                        select: function (data, event) {
-                            var element = $(event.currentTarget)
-                            $(".active", accordion).removeClass('active');
-                            element.addClass("active");
-                            map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
-                            if (map.getZoom() < MIN_ZOOM_LEVEL) {
-                                map.setZoom(MIN_ZOOM_LEVEL)
-                            }
-                        }
-                    }
-                })
-            },
             minPoint, maxPoint;
         traps.forEach(function (trap) {
             // default to 0 if undefined
@@ -86,6 +86,7 @@ $(document).ready(function initialize () {
             }));
         });
         // render the side panel traps with knockoutjs
+        trapsViewModel.traps = ko.observableArray(traps.map(buildTrap))
         ko.applyBindings(trapsViewModel, accordion[0])
         ko.applyBindings({
             notifications: notifications,

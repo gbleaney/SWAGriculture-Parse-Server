@@ -104,7 +104,8 @@ app.post('/trap', function (req, res) {
             promise = Trap.create(req.body)
         }
         promise.then(
-            function () {
+            function (trap) {
+                io.emit('new', trap)
                 res.send({success: true})
             },
             function (error) {
