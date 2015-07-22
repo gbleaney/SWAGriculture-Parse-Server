@@ -41,7 +41,7 @@ function buildTrap(trap) {
             iconColor: trap.sprung ? 'red' : 'green',
             select: function (data, event) {
                 var element = $(event.currentTarget)
-                $(".active", accordion).removeClass('active');
+                $(".active", $("#traps-accordion")).removeClass('active');
                 element.addClass("active");
                 map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
                 if (map.getZoom() < MIN_ZOOM_LEVEL) {
