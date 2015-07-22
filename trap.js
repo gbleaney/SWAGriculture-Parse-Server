@@ -64,7 +64,7 @@ module.exports = {
             trap.set("location", createGeopoint(newData.longitude, newData.latitude))
         }
         if (newData.name) {
-            trap.set(newData.name)
+            trap.set("name", newData.name)
         }
         return trap.save()
     },
