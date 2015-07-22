@@ -28,6 +28,13 @@
             })
             socket.on('new', function(trap) {
                 trapsViewModel.traps.push(buildTrap(trap))
+                var long = trap.location.longitude;
+                var lat = trap.location.latitude;
+                var marker = new google.maps.Marker({
+                  position: new google.maps.LatLng(lat, long),
+                  title: trap.name
+                });
+                marker.setMap(map)
                 map.setCenter(new google.maps.LatLng(trap.location.latitude, trap.location.longitude))
             })
         </script>

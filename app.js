@@ -131,12 +131,20 @@ app.post('/receiveSMS', function (req, res) {
 
     console.log("Received a new text from: " + req.body)
 
-    Phone.register(req.body.From).then(function () {
-        res.status(200).end();
-    }, function (error) {
-        res.status(500).send({ error: error })
-    })
-
+    if(req.body.Body == "DONE") {
+        console.log("Removing " + req.body.From + " from phones list")
+        Phone.unregister(req.body.From).then(function () {
+            res.status(200).end();
+        }, function (error) {
+            res.status(500).send({ error: error })
+        })
+    } else {
+        Phone.register(req.body.From).then(function () {
+            res.status(200).end();
+        }, function (error) {
+            res.status(500).send({ error: error })
+        })
+    }
 })
 
 app.post('/sendSMS', function(req, res) {
